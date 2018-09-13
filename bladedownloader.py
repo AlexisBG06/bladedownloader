@@ -7,13 +7,14 @@ try:
     import asyncio
     import time
     from PIL import ImageTk, Image
+    import appdirs
+    from urllib.request import urlretrieve
+    import app as music
 except Exception as e:
     m.showinfo("Error", '{}: {}'.format(type(e).__name__, str(e)) )
     os.system('exit')
 
-import appdirs
-from urllib.request import urlretrieve
-import app as music
+
     
     
 class App(tk.Frame):
