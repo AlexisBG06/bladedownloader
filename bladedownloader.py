@@ -1,22 +1,17 @@
-import tkinter as tk
 from tkinter import messagebox as m
+import tkinter as tk
 import tkinter.filedialog
 import os
 import json
-try:
-    import asyncio
-    import time
-    from PIL import ImageTk, Image
-    import appdirs
-    from urllib.request import urlretrieve
-    import app as music
-except Exception as e:
-    m.showinfo("Error", '{}: {}'.format(type(e).__name__, str(e)) )
-    os.system('exit')
+import asyncio
+import time
+from PIL import ImageTk, Image
+import appdirs
+from urllib.request import urlretrieve
+import app as music
+import sys
 
 
-    
-    
 class App(tk.Frame):
     '''Represent the app itself.'''
 
@@ -32,14 +27,17 @@ class App(tk.Frame):
         root["bg"] = "#00bdff"
         root.iconbitmap(self.data.path+"\\assets\\blade.ico")
         self.dir = self.data.get("folder")
+        self.format = self.data.get("format")
+        self.active = False
         root.title = "Blade Downloader"
         if self.y >= self.x:
             self.mode = "portrait"
         else:
             self.mode = "landscape"
 
-
-        
+    def quit(self):
+        self.active = False
+        root.destroy()
 
     def create_widgets(self):
         '''Initialize the widgets.'''
@@ -48,9 +46,13 @@ class App(tk.Frame):
         self.header.pack()
 
         self.menu = tk.Menu(self, bg="black", fg="#00bdff")
-        self.menu.add_command(label="QUIT", command=root.destroy)
+        self.sub_menu = tk.Menu(self.menu)
+        for format in ["mp3", "wav", "wma", "webm"]:
+            self.sub_menu.add_command(label=format, command=self.choose_format(format))
+        self.menu.add_command(label="QUIT", command=self.quit)
         self.menu.add_command(label="DOWNLOAD SONGS", command=self.download_songs)
         self.menu.add_command(label="SELECT FOLDER", command=self.choose_dir)
+        self.menu.add_cascade(label="FORMAT", menu=self.sub_menu)
         
         root.config(menu=self.menu)
 
@@ -110,12 +112,20 @@ class App(tk.Frame):
         self.dir = tkinter.filedialog.askdirectory()   
         self.data.write("folder", self.dir)    
 
+    def choose_format(self, format):
+        self.format = format
+        self.data.write('format', self.format)
 
     def download_songs(self):
+        counter = 0
         for line in app.entry.get('1.0', 'end-1c').split("\n"):
+            counter += 1
             song = music.Song(line)
             song.download()
-            song.convert(self.dir)
+            song.convert(self.dir, self.format)
+        self.reinit_entry()
+        m.showinfo("Done!", "The songs were downloaded!")
+        
 
 
     async def mainloop(self):
@@ -209,9 +219,9 @@ try:
     app = App(master=root)
     loop = asyncio.get_event_loop()
     loop.run_until_complete(app.mainloop())
-except Exception as e:
-    m.showinfo("Error", '{}: {}'.format(type(e).__name__, str(e)) )
-    os.system('exit')
+except Exception as error:
+    m.showerror("Critical", '{}: {}'.format(type(error).__name__, str(error)) )
+    sys.exit()
 
 
 

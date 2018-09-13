@@ -39,10 +39,10 @@ class Song:
         with youtube_dl.YoutubeDL(self.options) as ydl:
             ydl.download([self.song])
 
-    def convert(self, dir):
+    def convert(self, dir, format):
         '''Convert to the right format.'''
         music = AudioFileClip("temp\\"+self.display)
-        music.write_audiofile("{}\\{}.mp3".format(dir, self.title))
+        music.write_audiofile("{}\\{}.{}".format(dir, self.title, format))
 
 
 
