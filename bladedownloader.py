@@ -10,6 +10,8 @@ import appdirs
 from urllib.request import urlretrieve
 import app as music
 import sys
+from random import shuffle
+from glob import glob
 
 
 class App(tk.Frame):
@@ -51,6 +53,7 @@ class App(tk.Frame):
             self.sub_menu.add_command(label=format, command=self.choose_format(format))
         self.menu.add_command(label="QUIT", command=self.quit)
         self.menu.add_command(label="DOWNLOAD SONGS", command=self.download_songs)
+        self.menu.add_command(label="SHUFFLE", command=self.shuffle)
         self.menu.add_command(label="SELECT FOLDER", command=self.choose_dir)
         self.menu.add_cascade(label="FORMAT", menu=self.sub_menu)
         
@@ -122,10 +125,14 @@ class App(tk.Frame):
             counter += 1
             song = music.Song(line)
             song.download()
-            song.convert(self.dir, self.format)
+            song.convert(self.dir)
         self.reinit_entry()
         m.showinfo("Done!", "The songs were downloaded!")
-        
+
+    def shuffle(self):
+        files = glob(self.dir)
+        shuffle(files)
+        m.showinfo("Done!", "The folder was shuffled!")
 
 
     async def mainloop(self):
